@@ -55,7 +55,7 @@ export const WhyHuemanSection = () => {
                 <div
                   className={`
                     w-12 h-12 rounded-xl flex items-center justify-center text-white
-                    bg-gradient-to-br ${f.color}
+                    bg-linear-to-br ${f.color}
                     shadow-md mb-6
                     transition-transform duration-300
                     group-hover:scale-110

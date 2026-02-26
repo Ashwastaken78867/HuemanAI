@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
         {/* Logo + description */}
         <div className="min-w-full sm:min-w-60 text-sm text-text-charcoal font-semibold leading-[1.2]">
           <img
-            src="src\assets\logo (1).png"
+            src="src\assets\logo.png"
             alt="HumenAI Logo"
             className="object-contain w-32.5 sm:w-39"
           />

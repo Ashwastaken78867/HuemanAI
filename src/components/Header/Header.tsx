@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import logo from '/hueman.ai/src/assets/logo (1).png';
+import logo from '/hueman.ai/src/assets/logo.png';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
