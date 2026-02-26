@@ -1,4 +1,5 @@
 import React from "react";
+import logo from "../../assets/logo.png";
 
 export const Footer: React.FC = () => {
   return (
@@ -7,11 +8,10 @@ export const Footer: React.FC = () => {
       <section className="bg-white flex flex-wrap justify-between p-8 md:p-14 gap-y-8 md:gap-y-10 gap-x-6 md:gap-x-15 sm:gap-x-5">
         {/* Logo + description */}
         <div className="min-w-full sm:min-w-60 text-sm text-text-charcoal font-semibold leading-[1.2]">
-          <img
-            src="src\assets\logo.png"
-            alt="HumenAI Logo"
-            className="object-contain w-32.5 sm:w-39"
-          />
+        
+              <img src={logo} alt="HuemanAI Logo" className="h-8 w-auto" />
+         
+        
           <p className="mt-4 sm:mt-6 text-sm font-normal text-text-charcoal/70">
             Deliver with the AI-Native Suite for Modern Hospitality
           </p>
