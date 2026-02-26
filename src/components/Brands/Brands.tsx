@@ -1,15 +1,15 @@
-import React from 'react';
+import React from "react";
 
-const logos = [
-  'src\assets\img1.png',
-  'src/assets/img2.png',
-  'src/assets/img3.png',
-  'src/assets/img4.png',
-  'src/assets/img5.png',
-  'src/assets/img6.png',
-  'src/assets/img7.png',
-  'src/assets/img8.png',
-];
+import img1 from "../../assets/img1.png";
+import img2 from "../../assets/img2.png";
+import img3 from "../../assets/img3.png";
+import img4 from "../../assets/img4.png";
+import img5 from "../../assets/img5.png";
+import img6 from "../../assets/img6.png";
+import img7 from "../../assets/img7.png";
+import img8 from "../../assets/img8.png";
+
+const logos = [img1, img2, img3, img4, img5, img6, img7, img8];
 
 export const Brands: React.FC = () => {
   return (
@@ -17,7 +17,7 @@ export const Brands: React.FC = () => {
       <div className="max-w-6xl mx-auto px-6 text-center">
         {/* Title */}
         <h2 className="text-3xl lg:text-4xl font-semibold text-gray-800">
-          Trusted by Enterprise{' '}
+          Trusted by Enterprise{" "}
           <span className="text-primary">Hospitality Groups</span> Worldwide
         </h2>
 
@@ -50,3 +50,5 @@ export const Brands: React.FC = () => {
     </section>
   );
 };
+
+export default Brands;
