@@ -1,6 +1,6 @@
 
 import { ArrowRight, Play } from 'lucide-react';
-import tabletMockup from '/hueman.ai/src/assets/hero.png';
+import tabletMockup from '../../assets/hero.png';
 
 export function Hero() {
   return (
