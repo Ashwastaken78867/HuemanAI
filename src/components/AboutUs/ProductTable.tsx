@@ -105,7 +105,6 @@ export const ProductTabs: React.FC = () => {
   const keys = tabs.map(t => t.key);
   const activeKey = keys[activeIndex];
   const data = content[activeKey];
-  const [skipSmallAnim, setSkipSmallAnim] = useState(false);
 
   const goTo = (index: number) => {
     if (index < 0 || index >= keys.length) return;
