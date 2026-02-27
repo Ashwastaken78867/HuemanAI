@@ -105,6 +105,7 @@ export const ProductTabs: React.FC = () => {
   const keys = tabs.map(t => t.key);
   const activeKey = keys[activeIndex];
   const data = content[activeKey];
+  const [skipSmallAnim, setSkipSmallAnim] = useState(false);
 
   const goTo = (index: number) => {
     if (index < 0 || index >= keys.length) return;
@@ -322,11 +323,15 @@ const textVariants: Variants = {
     )}
 
     {compact && (
-      <motion.div
-        key="small"
-        initial={{ opacity: 0, scale: 0.94, y: 12 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: -10 }}
+<motion.div
+  key="small"
+  initial={
+    compactJustEntered.current
+      ? false
+      : { opacity: 0, scale: 0.94, y: 12 }
+  }
+  animate={{ opacity: 1, scale: 1, y: 0 }}
+  exit={{ opacity: 0, scale: 0.96, y: -10 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
         className="absolute inset-0 grid grid-cols-4 gap-2 w-full items-center will-change-transform"
       >
