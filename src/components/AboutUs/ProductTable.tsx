@@ -177,25 +177,58 @@ export const ProductTabs: React.FC = () => {
   }, [activeIndex, keys.length, compact]);
 
   // ✅ compact detection (corrected)
+  // useEffect(() => {
+  //   const onScroll = () => {
+  //     if (!outerRef.current) return;
+
+  //     const rect = outerRef.current.getBoundingClientRect();
+  //     const nextCompact = rect.top <= 40;
+
+  //     if (nextCompact && !compact) {
+  //       compactScrollBlock.current = 25;   // 🔒 require 3 scrolls at tab 1
+  //       edgeLock.current = "start";
+  //       compactJustEntered.current = true;
+  //     }
+
+  //     setCompact(nextCompact);
+  //   };
+
+  //   window.addEventListener("scroll", onScroll);
+  //   return () => window.removeEventListener("scroll", onScroll);
+  // }, [compact]);
   useEffect(() => {
-    const onScroll = () => {
-      if (!outerRef.current) return;
+  const onScroll = () => {
+    if (!outerRef.current) return;
 
-      const rect = outerRef.current.getBoundingClientRect();
-      const nextCompact = rect.top <= 40;
+    const rect = outerRef.current.getBoundingClientRect();
+    const vh = window.innerHeight;
 
-      if (nextCompact && !compact) {
-        compactScrollBlock.current = 3;   // 🔒 require 3 scrolls at tab 1
-        edgeLock.current = "start";
-        compactJustEntered.current = true;
+    const nextCompact = rect.top <= 40;
+
+    // 🔒 entering compact → long pause at tab 1
+    if (nextCompact && !compact) {
+      compactScrollBlock.current = 25;
+      edgeLock.current = "start";
+      compactJustEntered.current = true;
+    }
+
+    // 🔒 reaching end of section → long pause at tab 4
+    const atEnd =
+      rect.bottom <= vh + 40 && rect.bottom >= vh - 40;
+
+    if (nextCompact && atEnd && activeIndex === keys.length - 1) {
+      if (edgeLock.current !== "end") {
+        compactScrollBlock.current = 25;
+        edgeLock.current = "end";
       }
+    }
 
-      setCompact(nextCompact);
-    };
+    setCompact(nextCompact);
+  };
 
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [compact]);
+  window.addEventListener("scroll", onScroll);
+  return () => window.removeEventListener("scroll", onScroll);
+}, [compact, activeIndex, keys.length]);
 
   // reset shrink flag
   useEffect(() => {
