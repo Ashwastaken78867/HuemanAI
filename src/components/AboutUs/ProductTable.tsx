@@ -14,22 +14,21 @@ import {
   Utensils,
 } from "lucide-react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
-
+import hero from "../../assets/hero.png";
 type TabKey = "sales" | "marketing" | "operations" | "table";
 
 // Each tab has an icon used in the tall (expanded) card state
-const tabs: { key: TabKey; label: string; Icon: any }[] = [
-  { key: "sales",      label: "Sales & Revenue",      Icon: DollarSign },
-  { key: "marketing",  label: "Marketing and Growth",  Icon: Search     },
-  { key: "operations", label: "Operations",            Icon: Users      },
-  { key: "table",      label: "Table booking System",  Icon: Calendar   },
+const tabs: { key: TabKey; label: string; Icon: any; activeBg: string }[] = [
+  { key: "sales",      label: "& Revenue",      Icon: DollarSign, activeBg: "bg-yellow-400" },
+  { key: "marketing",  label: "Marketing and Growth", Icon: Search,     activeBg: "bg-purple-300" },
+  { key: "operations", label: "Operations",           Icon: Users,      activeBg: "bg-pink-300" },
+  { key: "table",      label: "Table booking System", Icon: Calendar,   activeBg: "bg-sky-300" },
 ];
-
 const content: Record<TabKey, any> = {
   sales: {
     title: "Drive Direct Revenue with Autonomous Sales Agents",
     features: [
-      { icon: DollarSign, title: "Sales & Upselling Agent", desc: "24/7 autonomous voice receptionist for bookings." },
+      { icon: DollarSign, title: "& Upselling Agent", desc: "24/7 autonomous voice receptionist for bookings." },
       { icon: Sparkles,   title: "Revenue Intelligence",    desc: "Real-time PMS sync for total asset optimization." },
       { icon: BarChart,   title: "Insights & Competition",  desc: "Dynamic pricing to outperform local competitors." },
       { icon: Calendar,   title: "Event Sales Agent",       desc: "Instant automation for group and event inquiries." },
@@ -92,15 +91,20 @@ const content: Record<TabKey, any> = {
 
 export const ProductTabs: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [direction, setDirection]     = useState(1);
-  const [compact, setCompact]         = useState(false);
+  const [, setDirection] = useState(1);
+  const [compact, setCompact] = useState(false);
 
-  const outerRef      = useRef<HTMLDivElement | null>(null);
+  const outerRef = useRef<HTMLDivElement | null>(null);
   const lastWheelTime = useRef(0);
+  const compactJustEntered = useRef(false);
 
-  const keys      = tabs.map(t => t.key);
+  // 🔒 locks
+  const compactScrollBlock = useRef(0);
+  const edgeLock = useRef<"start" | "end" | null>(null);
+
+  const keys = tabs.map(t => t.key);
   const activeKey = keys[activeIndex];
-  const data      = content[activeKey];
+  const data = content[activeKey];
 
   const goTo = (index: number) => {
     if (index < 0 || index >= keys.length) return;
@@ -108,26 +112,61 @@ export const ProductTabs: React.FC = () => {
     setActiveIndex(index);
   };
 
-  // scroll logic unchanged
+  // ✅ wheel logic (corrected)
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       if (!outerRef.current) return;
+
       const rect = outerRef.current.getBoundingClientRect();
       const vh = window.innerHeight;
-      const pinned = rect.top <= 0 && rect.bottom >= vh;
+
+      // only when compact visible
+      if (!compact) return;
+
+      const pinned = rect.top <= 40 && rect.bottom >= vh - 40;
       if (!pinned) return;
+
+      // 🔒 entry lock (stay on tab 1 after shrink)
+      if (compactScrollBlock.current > 0) {
+        e.preventDefault();
+        compactScrollBlock.current -= 1;
+        return;
+      }
 
       const scrollingDown = e.deltaY > 0;
       const scrollingUp = e.deltaY < 0;
 
-      if (scrollingDown && activeIndex === keys.length - 1) return;
-      if (scrollingUp && activeIndex === 0) return;
+      // 🔒 edge pause at first
+      if (activeIndex === 0 && scrollingUp) {
+        if (edgeLock.current !== "start") {
+          e.preventDefault();
+          edgeLock.current = "start";
+          compactScrollBlock.current = 2;
+          return;
+        }
+        return;
+      }
+
+      // 🔒 edge pause at last
+      if (activeIndex === keys.length - 1 && scrollingDown) {
+        if (edgeLock.current !== "end") {
+          e.preventDefault();
+          edgeLock.current = "end";
+          compactScrollBlock.current = 2;
+          return;
+        }
+        return;
+      }
 
       const now = Date.now();
-      if (now - lastWheelTime.current < 500) { e.preventDefault(); return; }
+      if (now - lastWheelTime.current < 650) {
+        e.preventDefault();
+        return;
+      }
 
       e.preventDefault();
       lastWheelTime.current = now;
+      edgeLock.current = null;
 
       if (scrollingDown) goTo(activeIndex + 1);
       if (scrollingUp) goTo(activeIndex - 1);
@@ -135,171 +174,269 @@ export const ProductTabs: React.FC = () => {
 
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel);
-  }, [activeIndex, keys.length]);
+  }, [activeIndex, keys.length, compact]);
 
+  // ✅ compact detection (corrected)
   useEffect(() => {
     const onScroll = () => {
       if (!outerRef.current) return;
+
       const rect = outerRef.current.getBoundingClientRect();
-      setCompact(rect.top <= 40);
+      const nextCompact = rect.top <= 40;
+
+      if (nextCompact && !compact) {
+        compactScrollBlock.current = 3;   // 🔒 require 3 scrolls at tab 1
+        edgeLock.current = "start";
+        compactJustEntered.current = true;
+      }
+
+      setCompact(nextCompact);
     };
+
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [compact]);
+
+  // reset shrink flag
+  useEffect(() => {
+    if (compactJustEntered.current) {
+      compactJustEntered.current = false;
+    }
+  }, [activeIndex]);
 
 
-const slideVariants: Variants = {
-  enter: {
-    opacity: 0,
-    x: direction * 60,
-    scale: 0.97,
-  },
+
+
+// text animation
+const textVariants: Variants = {
+  enter: { opacity: 0, y: 28 },
   center: {
     opacity: 1,
-    x: 0,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1] as any, // ← fix
-    },
+    y: 0,
+    transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
   },
   exit: {
     opacity: 0,
-    x: direction * -60,
-    scale: 0.97,
-    transition: {
-      duration: 0.3,
-      ease: [0.4, 0, 1, 1] as any, // ← fix
-    },
+    y: 18,
+    transition: { duration: 0.22, ease: "easeIn" },
   },
 };
+ 
+  // hero animation synced like Apollo
+  const imageVariants: Variants = {
+    enter: { opacity: 0, y: 46, scale: 0.98 },
+    center: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.48,
+        ease: [0.22, 1, 0.36, 1],
+        delay: 0.08,
+      },
+    },
+    exit: {
+      opacity: 0,
+      y: 30,
+      transition: { duration: 0.2 },
+    },
+  };
+
   return (
-    <div ref={outerRef} className="relative w-full bg-[#f7f9fb]" style={{ height:"200vh" }}>
+    <div
+      ref={outerRef}
+      className="relative w-full bg-[#f7f9fb]"
+      style={{ height: "160vh" }}
+    >
       <div className="sticky top-0 h-screen flex items-center w-full bg-[#f7f9fb] py-6">
-        <div className="max-w-6xl mx-auto px-6 w-full flex flex-col justify-center">
+        <div className="w-full flex flex-col justify-center">
 
-          {/* TABS FIXED */}
-          <motion.div
-            layout
-            transition={{ type:"spring", stiffness:420, damping:32 }}
-            className="bg-white shadow-sm border border-gray-100 rounded-2xl p-2 w-full mb-4"
+          {/* APOLLO TABS */}
+          <div
+            className={`
+              relative w-full mb-6 transition-shadow duration-300
+              ${compact ? "shadow-[0_6px_20px_rgba(0,0,0,0.06)]" : ""}
+            `}
           >
-            <div className="grid grid-cols-4 gap-2 w-full">
-              {tabs.map((t,i)=>{
-                const Icon = t.Icon;
-                const isActive = activeKey===t.key;
+            {/* LARGE CARDS */}
+          {/* LARGE CARDS */}
+<AnimatePresence>
+  {!compact && (
+    <motion.div
+      key="large"
+      initial="hidden"
+      animate="show"
+      exit="hidden"
+      variants={{
+        hidden: {},
+        show: {
+          transition: {
+            staggerChildren: 0.08,
+          },
+        },
+      }}
+      className="grid grid-cols-4 gap-6 w-full"
+    >
+      {tabs.map((t) => {
+        const Icon = t.Icon;
+        const isActive = activeKey === t.key;
 
-                return (
-                  <motion.button
-                    key={t.key}
-                    onClick={()=>goTo(i)}
-                    layout
-                    whileTap={{ scale:0.96 }}
-                    transition={{ type:"spring", stiffness:420, damping:32 }}
-                    style={{ height: compact ? 48 : 128 }}
-                    className={`
-                      relative w-full overflow-hidden
-                      flex items-center justify-center
-                      ${compact ? "rounded-xl" : "rounded-2xl"}
-                      ${isActive ? "text-white shadow-sm" : "bg-gray-50 text-gray-500 hover:bg-gray-100"}
-                    `}
-                  >
-                    {/* Active bg */}
-                    {isActive && (
-                      <motion.span
-                        layoutId="activeTabBg"
-                        className={`absolute inset-0 bg-[#0f172a] ${compact?"rounded-xl":"rounded-2xl"}`}
-                        transition={{ type:"spring", stiffness:420, damping:32 }}
-                      />
-                    )}
-
-                    {/* Inner content */}
-                    <div
-                      className={`
-                        relative z-10 flex items-center justify-center
-                        ${compact ? "flex-row gap-2 px-3" : "flex-col gap-3 px-4"}
-                      `}
-                    >
-                      <Icon
-                        size={compact ? 16 : 28}
-                        className={isActive ? "text-white" : "text-gray-400"}
-                      />
-
-                      <span className={`text-center leading-tight ${compact?"text-xs":"text-sm"}`}>
-                        {t.label}
-                      </span>
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </div>
+        return (
+          <motion.div
+            key={t.key}
+            variants={{
+              hidden: {
+                opacity: 0,
+                y: 18,
+                scale: 0.96,
+                boxShadow: "0 0 0 rgba(0,0,0,0)",
+              },
+              show: {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                boxShadow: "0 10px 26px rgba(0,0,0,0.08)",
+                transition: {
+                  duration: 0.38,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              },
+            }}
+           className="
+  w-50 h-40  aspect-retangle rounded-2xl flex flex-col items-center justify-center
+  bg-gray-300 text--400 mx-auto
+"
+          >
+            <Icon
+              size={26}
+              className={isActive ? "text-white" : "text-gray-200"}
+            />
+            <span className="mt-2 text-sm font-medium">{t.label}</span>
           </motion.div>
-          {/* END TABS */}
+        );
+      })}
+    </motion.div>
+  )}
+</AnimatePresence>
 
-          {/* Content unchanged */}
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={activeKey}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="bg-white rounded-2xl shadow-md p-5 grid lg:grid-cols-2 gap-6 items-center max-h-[70vh]"
-            >
-              {/* ... content unchanged exactly ... */}
+            {/* SMALL TABS */}
+            <AnimatePresence>
+              {compact && (
+                <motion.div
+                  key="small"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  className="grid grid-cols-4 gap-2 w-full relative"
+                >
+                  {tabs.map((t, i) => {
+                    const Icon = t.Icon;
+                    const isActive = activeKey === t.key;
 
-
-
-
-
-              <div>
-                <h3 className="text-2xl lg:text-3xl font-semibold text-gray-900 leading-snug">
-                  {data.title}
-                </h3>
-
-                <div className="flex gap-3 mt-3">
-                  <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                    Get started for free
-                  </button>
-                  <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                    Learn more
-                  </button>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-3 mt-4">
-                  {data.features.map((f: any, i: number) => {
-                    const Icon = f.icon;
                     return (
-                      <div key={i} className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                        <Icon size={18} className="mb-1 text-gray-800" />
-                        <div className="font-semibold text-sm">{f.title}</div>
-                        <div className="text-xs text-gray-600 mt-0.5">{f.desc}</div>
-                      </div>
+                      <motion.button
+  key={t.key}
+  onClick={() => goTo(i)}
+className={`
+  relative h-12 w-[92%] mx-auto rounded-2xl flex items-center justify-center gap-2
+  ${isActive
+    ? t.activeBg + " text-white shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
+    : "bg-[#eef1f4] text-gray-600 hover:bg-[#e6eaee]"
+  }
+`}
+  whileTap={{ scale: 0.96 }}
+>
+  <Icon size={16} className={isActive ? "text-white" : "text-gray-500"} />
+  <span className="text-xs font-medium">{t.label}</span>
+
+  {/* SLIDING ACTIVE BAR */}
+  {isActive && (
+    <motion.div
+      layoutId="activeTabBar"
+      className="absolute bottom-0 left-3 right-3 h-0.75 rounded-full bg-white/60"
+      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+    />
+  )}
+</motion.button>
+                     
                     );
                   })}
-                </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-                <ul className="mt-3 space-y-1.5">
-                  {data.bullets.map((b: string, i: number) => (
-                    <li key={i} className="flex gap-2 text-gray-700 text-xs">
-                      <span className="mt-0.5 text-green-600">✔</span>
-                      <span>
-                        <strong>{b.split(":")[0]}:</strong>
-                        {b.split(":")[1]}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          {/* CONTENT */}
+          <AnimatePresence mode="wait">
+  <motion.div
+    key={compactJustEntered.current ? "static" : activeKey}
+    className="bg-gray rounded-2xl shadow-md p-5 grid lg:grid-cols-2 gap-10 items-center"
+    style={{ minHeight: 360 }}
+  >
+    {/* TEXT */}
+    <motion.div
+      variants={textVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+    >
+      <h3 className="text-2xl lg:text-3xl font-semibold text-gray-900 leading-snug">
+        {data.title}
+      </h3>
 
-              <div className="flex items-center justify-center">
-                <div className="w-full h-56 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500 text-sm">
-                  Visual Preview Area
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
+      <div className="flex gap-3 mt-3">
+        <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
+          Get started for free
+        </button>
+        <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
+          Learn more
+        </button>
+      </div>
 
+      <div className="grid sm:grid-cols-2 gap-3 mt-4">
+        {data.features.map((f: any, i: number) => {
+          const Icon = f.icon;
+          return (
+            <div key={i} className="bg-[#eef1f4] p-3 rounded-lg">
+              <Icon size={18} className="mb-1 text-gray-800" />
+              <div className="font-semibold text-sm">{f.title}</div>
+              <div className="text-xs text-gray-600 mt-0.5">{f.desc}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <ul className="mt-3 space-y-1.5">
+        {data.bullets.map((b: string, i: number) => (
+          <li key={i} className="flex gap-2 text-gray-700 text-xs">
+            <span className="mt-0.5 text-green-600">✔</span>
+            <span>
+              <strong>{b.split(":")[0]}:</strong>
+              {b.split(":")[1]}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </motion.div>
+
+    {/* HERO */}
+    <motion.div
+      variants={imageVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      className="flex items-center justify-center"
+    >
+      <img
+        src={hero}
+        alt="Product preview"
+        className="w-full max-w-130 rounded-xl object-contain shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+      />
+    </motion.div>
+  </motion.div>
+</AnimatePresence>
+          
         </div>
       </div>
     </div>
