@@ -293,112 +293,79 @@ const textVariants: Variants = {
           >
             {/* LARGE CARDS */}
           {/* LARGE CARDS */}
-<AnimatePresence>
-  {!compact && (
-    <motion.div
-      key="large"
-      initial="hidden"
-      animate="show"
-      exit="hidden"
-      variants={{
-        hidden: {},
-        show: {
-          transition: {
-            staggerChildren: 0.08,
-          },
-        },
-      }}
-      className="grid grid-cols-4 gap-6 w-full"
-    >
-      {tabs.map((t) => {
-        const Icon = t.Icon;
-        const isActive = activeKey === t.key;
+<div className="relative w-full mb-6 h-40 flex items-center">
+  <AnimatePresence initial={false}>
+    {!compact && (
+      <motion.div
+        key="big"
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.94, y: -12 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="grid grid-cols-4 gap-6 w-full will-change-transform"
+      >
+        {tabs.map((t) => {
+          const Icon = t.Icon;
+          const isActive = activeKey === t.key;
 
-        return (
-          <motion.div
-            key={t.key}
-            variants={{
-              hidden: {
-                opacity: 0,
-                y: 18,
-                scale: 0.96,
-                boxShadow: "0 0 0 rgba(0,0,0,0)",
-              },
-              show: {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                boxShadow: "0 10px 26px rgba(0,0,0,0.08)",
-                transition: {
-                  duration: 0.38,
-                  ease: [0.22, 1, 0.36, 1],
-                },
-              },
-            }}
-           className="
-  w-50 h-40  aspect-retangle rounded-2xl flex flex-col items-center justify-center
-  bg-gray-300 text--400 mx-auto
-"
-          >
-            <Icon
-              size={26}
-              className={isActive ? "text-white" : "text-gray-200"}
-            />
-            <span className="mt-2 text-sm font-medium">{t.label}</span>
-          </motion.div>
-        );
-      })}
-    </motion.div>
-  )}
-</AnimatePresence>
+          return (
+            <div
+              key={t.key}
+              className="w-50 h-40 rounded-2xl flex flex-col items-center justify-center bg-gray-300 mx-auto"
+            >
+              <Icon size={26} className={isActive ? "text-white" : "text-gray-200"} />
+              <span className="mt-2 text-sm font-medium">{t.label}</span>
+            </div>
+          );
+        })}
+      </motion.div>
+    )}
 
-            {/* SMALL TABS */}
-            <AnimatePresence>
-              {compact && (
+    {compact && (
+      <motion.div
+        key="small"
+        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: -10 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute inset-0 grid grid-cols-4 gap-2 w-full items-center will-change-transform"
+      >
+        {tabs.map((t, i) => {
+          const Icon = t.Icon;
+          const isActive = activeKey === t.key;
+
+          return (
+            <motion.button
+              key={t.key}
+              onClick={() => goTo(i)}
+              className={`relative h-12 w-[92%] mx-auto rounded-2xl flex items-center justify-center gap-2 ${
+                isActive
+                  ? t.activeBg + " text-white shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
+                  : "bg-[#eef1f4] text-gray-600 hover:bg-[#e6eaee]"
+              }`}
+              whileTap={{ scale: 0.96 }}
+            >
+              <Icon size={16} className={isActive ? "text-white" : "text-gray-500"} />
+              <span className="text-xs font-medium">{t.label}</span>
+
+              {isActive && (
                 <motion.div
-                  key="small"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-                  className="grid grid-cols-4 gap-2 w-full relative"
-                >
-                  {tabs.map((t, i) => {
-                    const Icon = t.Icon;
-                    const isActive = activeKey === t.key;
-
-                    return (
-                      <motion.button
-  key={t.key}
-  onClick={() => goTo(i)}
-className={`
-  relative h-12 w-[92%] mx-auto rounded-2xl flex items-center justify-center gap-2
-  ${isActive
-    ? t.activeBg + " text-white shadow-[0_6px_18px_rgba(0,0,0,0.08)]"
-    : "bg-[#eef1f4] text-gray-600 hover:bg-[#e6eaee]"
-  }
-`}
-  whileTap={{ scale: 0.96 }}
->
-  <Icon size={16} className={isActive ? "text-white" : "text-gray-500"} />
-  <span className="text-xs font-medium">{t.label}</span>
-
-  {/* SLIDING ACTIVE BAR */}
-  {isActive && (
-    <motion.div
-      layoutId="activeTabBar"
-      className="absolute bottom-0 left-3 right-3 h-0.75 rounded-full bg-white/60"
-      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-    />
-  )}
-</motion.button>
-                     
-                    );
-                  })}
-                </motion.div>
+                  layoutId="activeTabBar"
+                  className="absolute bottom-0 left-3 right-3 h-0.75 rounded-full bg-white/60"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
               )}
-            </AnimatePresence>
-          </div>
+            </motion.button>
+          );
+        })}
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
+  {/* spacer to keep layout height stable */}
+</div>
+          
 
           {/* CONTENT */}
           <AnimatePresence mode="wait">
