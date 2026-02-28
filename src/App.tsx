@@ -22,13 +22,13 @@ function App() {
    <Hero />
    <Brands />
    <AIBrainSection />
-  <section className="bg-white py-30">
+ <section className="bg-white py-14">
   <VoiceDemo />
 </section>
 
- <section className="bg-white py-20">
+<section className="bg-white pt-4 pb-16">
   <ProductTabs />
-</section>   
+</section>  
 <DataBackedResults />
    <AdvantageSection />
    <WhyHuemanSection />

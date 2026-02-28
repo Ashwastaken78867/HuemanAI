@@ -257,13 +257,13 @@ const textVariants: Variants = {
   };
 
   return (
-   <div
+<div
   ref={outerRef}
   className="relative w-full bg-white"
-  style={{ height: "160vh" }}
+  style={{ height: "120vh" }}
 >
-  <div className="sticky top-0 h-screen flex items-center w-full py-6 bg-white">    
-    <div className="w-full flex flex-col justify-center" >
+  <div className="sticky top-0 w-full py-6">
+    <div className="w-full flex flex-col">
       {/* APOLLO TABS */}
       <div
         className={`

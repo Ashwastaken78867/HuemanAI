@@ -3,7 +3,7 @@ import { Mic, Play, Volume2, Radio } from 'lucide-react';
 export function VoiceDemo() {
   return (
     <section className="py-24 px-6 lg:px-8 bg-linear-to-br from-[#1e293b] to-[#0f172a]">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto ">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-6 text-white">
             <h2 className="text-4xl lg:text-5xl mb-4">
