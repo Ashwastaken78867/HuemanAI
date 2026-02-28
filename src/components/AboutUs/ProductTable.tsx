@@ -262,12 +262,12 @@ const textVariants: Variants = {
   className="relative w-full bg-white"
   style={{ height: "120vh" }}
 >
-  <div className="sticky top-0 w-full py-6">
-    <div className="w-full flex flex-col">
+<div className="sticky top-0 h-screen flex items-start w-full pt-12 pb-6 bg-white">    
+  <div className="w-full flex flex-col">
       {/* APOLLO TABS */}
       <div
         className={`
-          relative w-full mb-4 transition-shadow duration-300
+          relative w-full mb-2 transition-shadow duration-300
           ${compact ? "shadow-[0_6px_20px_rgba(0,0,0,0.06)]" : ""}
         `}
       >
@@ -311,7 +311,7 @@ className="w-48 h-32 rounded-2xl flex flex-col items-center justify-center bg-gr
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96, y: -10 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 w-full flex items-center"
+                className="absolute inset-0 w-full flex items-center bg-white"
               >
                 {/* SEGMENTED CONTAINER */}
                 <div className="w-full max-w-295 mx-auto bg-white rounded-2xl border border-[#e6e9ee] p-2 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
