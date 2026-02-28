@@ -257,13 +257,13 @@ const textVariants: Variants = {
   };
 
   return (
-    <div
+   <div
   ref={outerRef}
   className="relative w-full bg-white"
-  style={{ height: "120vh" }}   // ✅ reduced section height
+  style={{ height: "160vh" }}
 >
-<div className="sticky top-0 h-screen flex flex-col justify-start w-full bg-[#f7f9fb] pt-6">    <div className="w-full flex flex-col justify-center">
-
+  <div className="sticky top-0 h-screen flex items-center w-full py-6 bg-white">    
+    <div className="w-full flex flex-col justify-center" >
       {/* APOLLO TABS */}
       <div
         className={`
@@ -382,7 +382,7 @@ className="w-48 h-32 rounded-2xl flex flex-col items-center justify-center bg-gr
                 {data.features.map((f: any, i: number) => {
                   const Icon = f.icon;
                   return (
-                    <div key={i} className="bg-[#eef1f4] p-3 rounded-lg">
+                    <div key={i} className="bg-white border border-[#e6e9ee] p-3 rounded-lg">
                       <Icon size={18} className="mb-1 text-gray-800" />
                       <div className="font-semibold text-sm">{f.title}</div>
                       <div className="text-xs text-gray-600 mt-0.5">
