@@ -17,7 +17,7 @@ import { WhyHuemanSection } from './components/WhyHuemanSection.tsx/WhyHuemanSec
 function App() {
 
   return (
-    <div>
+    <div className='bg-white'>
    <Header />
    <Hero />
    <Brands />
