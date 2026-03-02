@@ -237,40 +237,56 @@ export const ProductTabs: React.FC = () => {
 
 
 
-// text animation
-const textVariants: Variants = {
-  enter: { opacity: 0, y: 28 },
+const rise: Variants = {
+  enter: (_delay: number = 0) => ({
+    opacity: 0,
+    y: 80, // start clearly below final position
+  }),
+  center: (delay: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1.4,
+      ease: [0.22, 1, 0.36, 1] as const,
+      delay,
+    },
+  }),
+  exit: {
+    opacity: 0,
+    y: -40,
+    transition: {
+      duration: 0.9,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
+  },
+};
+
+const imageRise: Variants = {
+  enter: {
+    opacity: 0,
+    y: 120, // deeper start from below
+    scale: 0.98,
+  },
   center: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
+    scale: 1,
+    transition: {
+      duration: 1.7,
+      ease: [0.22, 1, 0.36, 1] as const,
+      delay: 0.44,
+    },
   },
   exit: {
     opacity: 0,
-    y: 18,
-    transition: { duration: 0.22, ease: "easeIn" },
+    y: -60,
+    scale: 0.98,
+    transition: {
+      duration: 1.0,
+      ease: [0.4, 0, 0.2, 1] as const,
+    },
   },
 };
- 
-  // hero animation synced like Apollo
-  const imageVariants: Variants = {
-    enter: { opacity: 0, y: 46, scale: 0.98 },
-    center: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.48,
-        ease: [0.22, 1, 0.36, 1],
-        delay: 0.08,
-      },
-    },
-    exit: {
-      opacity: 0,
-      y: 30,
-      transition: { duration: 0.2 },
-    },
-  };
 
   return (
 <div
@@ -285,125 +301,151 @@ const textVariants: Variants = {
       className="relative w-full mb-2 duration-300"
       >
         {/* COMPACT SEGMENTED BUTTON BAR */}
-        <motion.div
-          initial={{ opacity: 0, y: 16, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full mb-4 flex items-center bg-white"
-        >
-          <div className="w-full max-w-270 mx-auto bg-white rounded-2xl border border-[#e6e9ee] p-2 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-            <div className="grid grid-cols-4 gap-4">
-              {tabs.map((t, i) => {
-                const isActive = activeKey === t.key;
+     <motion.div
+  initial={{ opacity: 0, y: 16, scale: 0.96 }}
+  animate={{ opacity: 1, y: 0, scale: 1 }}
+  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+  className="relative w-full mb-4 flex items-center bg-white"
+>
+  <div className="w-full max-w-7xl mx-auto bg-white rounded-2xl border border-[#e6e9ee] p-2">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-3">
+      {tabs.map((t, i) => {
+        const isActive = activeKey === t.key;
 
-                return (
-                  <motion.button
-                    key={t.key}
-                    onClick={() => goTo(i)}
-                    className={`
-                      relative h-11 w-full
-                      rounded-xl flex items-center justify-center gap-2
-                      font-medium text-sm
-                      transition-colors duration-200
-                      ${
-                        isActive
-                          ? "bg-[#0b0f2a] text-white shadow-[0_8px_20px_rgba(11,15,42,0.18)]"
-                          : "bg-[#59e27a] text-[#0b0f2a] hover:bg-[#49d96b]"
-                      }
-                    `}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    {/* <Icon
-                      size={18}
-                      className={isActive ? "text-white" : "text-[#0b0f2a]"}
-                    /> */}
-                    <span>{t.label}</span>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </div>
-        </motion.div>
+        return (
+          <motion.button
+            key={t.key}
+            onClick={() => goTo(i)}
+            className={`
+              relative w-full
+              px-4 lg:px-8 py-5 lg:py-6
+              rounded-lg
+              text-sm lg:text-base
+              font-normal
+              flex items-center justify-center text-center
+              transition-colors duration-200
+              ${
+                isActive
+                  ? "bg-[#14142c] text-white"
+                  : "bg-[#62ff84] text-black hover:bg-[#4ee86d]"
+              }
+            `}
+          >
+            <span className="leading-tight">{t.label}</span>
+          </motion.button>
+        );
+      })}
+    </div>
+  </div>
+</motion.div>
+            
       </div>
     {/* </div>
   </div>
 </div> */}
 
       {/* CONTENT */}
-      <div className="w-full bg-white">
-      <AnimatePresence mode="wait">
-        <div className="w-full max-w-270 mx-auto">  {/* slightly narrower */}
-  <motion.div
-  key={compactJustEntered.current ? "static" : activeKey}
-  className="bg-white rounded-2xl border border-[#e6e9ee] p-5 grid lg:grid-cols-2 gap-8 items-center"
-  style={{ minHeight: 260 }}
->
-            {/* TEXT */}
-            <motion.div
-              variants={textVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-            >
-              <h3 className="text-2xl lg:text-3xl font-semibold text-gray-900 leading-snug">
-                {data.title}
-              </h3>
+     {/* CONTENT */}
+<div className="w-full bg-white">
+  <AnimatePresence>
+    <div className="w-full max-w-7xl mx-auto">
+      <motion.div
+        className="bg-white rounded-2xl border border-[#e6e9ee] p-5 grid lg:grid-cols-2 gap-8 items-center"
+        style={{ minHeight: 260 }}
+      >
+        {/* TEXT COLUMN (static container) */}
+        <div key={activeKey + "-text"}>
+          
+          {/* TITLE */}
+          <motion.h3
+            custom={0.10}
+            variants={rise}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="text-2xl lg:text-3xl font-semibold text-gray-900 leading-snug"
+          >
+            {data.title}
+          </motion.h3>
 
-              <div className="flex gap-3 mt-3">
-                <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                  Get started for free
-                </button>
-                <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                  Learn more
-                </button>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-3 mt-4">
-                {data.features.map((f: any, i: number) => {
-                  const Icon = f.icon;
-                  return (
-                    <div key={i} className="bg-white border border-[#e6e9ee] p-3 rounded-lg">
-                      <Icon size={18} className="mb-1 text-gray-800" />
-                      <div className="font-semibold text-sm">{f.title}</div>
-                      <div className="text-xs text-gray-600 mt-0.5">
-                        {f.desc}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <ul className="mt-3 space-y-1.5">
-                {data.bullets.map((b: string, i: number) => (
-                  <li key={i} className="flex gap-2 text-gray-700 text-xs">
-                    <span className="mt-0.5 text-green-600">✔</span>
-                    <span>
-                      <strong>{b.split(":")[0]}:</strong>
-                      {b.split(":")[1]}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* HERO */}
-            <motion.div
-              variants={imageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="flex items-center justify-center"
-            >
-              <img
-                src={hero}
-                alt="Product preview"
-                className="w-full max-w-130 rounded-xl object-contain shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
-              />
-            </motion.div>
+          {/* BUTTONS */}
+          <motion.div
+            custom={0.24}
+            variants={rise}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="flex gap-3 mt-3"
+          >
+            <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
+              Get started for free
+            </button>
+            <button className="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold">
+              Learn more
+            </button>
           </motion.div>
+
+          {/* FEATURES */}
+          <motion.div
+            custom={0.36}
+            variants={rise}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="grid sm:grid-cols-2 gap-3 mt-4"
+          >
+            {data.features.map((f: any, i: number) => {
+              const Icon = f.icon;
+              return (
+                <div key={i} className="bg-white border border-[#e6e9ee] p-3 rounded-lg">
+                  <Icon size={18} className="mb-1 text-gray-800" />
+                  <div className="font-semibold text-sm">{f.title}</div>
+                  <div className="text-xs text-gray-600 mt-0.5">{f.desc}</div>
+                </div>
+              );
+            })}
+          </motion.div>
+
+          {/* BULLETS */}
+          <motion.ul
+            custom={0.52}
+            variants={rise}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="mt-3 space-y-1.5"
+          >
+            {data.bullets.map((b: string, i: number) => (
+              <li key={i} className="flex gap-2 text-gray-700 text-xs">
+                <span className="mt-0.5 text-green-600">✔</span>
+                <span>
+                  <strong>{b.split(":")[0]}:</strong>
+                  {b.split(":")[1]}
+                </span>
+              </li>
+            ))}
+          </motion.ul>
         </div>
-      </AnimatePresence>
-      </div>
+
+        {/* IMAGE */}
+        <motion.div
+          key={activeKey + "-image"}
+          variants={imageRise}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          className="flex items-center justify-center"
+        >
+          <img
+            src={hero}
+            alt="Product preview"
+            className="w-full max-w-130 rounded-xl object-contain shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
+          />
+        </motion.div>
+      </motion.div>
+    </div>
+  </AnimatePresence>
+</div>
 
     </div>
   </div>

@@ -13,7 +13,6 @@ import { Hero } from './components/heroSection/HeroSection'
 import { IntegrationsSection } from './components/IntegrationsSection/IntegrationsSection'
 import { VoiceDemo } from './components/VoiceDemo/VoiceDemo'
 import { WhyHuemanSection } from './components/WhyHuemanSection.tsx/WhyHuemanSection'
-
 function App() {
 
   return (
@@ -36,6 +35,10 @@ function App() {
    <EnterpriseReliability />
    <FAQSection />
    <Footer/>
+   {/* <ModuleButtons activeModule={0} onModuleChange={function (): void {
+        throw new Error('Function not implemented.')
+      } } /> */}
+
    
     </div>
   )
