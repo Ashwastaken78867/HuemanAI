@@ -152,64 +152,71 @@ export const ProductTabs: React.FC = () => {
   };
 
   /* ---------- Wheel (your logic) ---------- */
-  useEffect(() => {
-    const onWheel = (e: WheelEvent) => {
-      if (!outerRef.current) return;
+ const enteredFromBottom = useRef(false);
+const enteredFromTop = useRef(false);
 
-      const rect = outerRef.current.getBoundingClientRect();
-      const vh = window.innerHeight;
+useEffect(() => {
+  const onWheel = (e: WheelEvent) => {
+    if (!outerRef.current) return;
 
-      if (!compact) return;
+    const rect = outerRef.current.getBoundingClientRect();
+    const vh = window.innerHeight;
 
-      const pinned =
-        rect.top <= HEADER_OFFSET &&
-        rect.bottom >= vh - HEADER_OFFSET;
-      if (!pinned) return;
+    const pinned =
+      rect.top <= HEADER_OFFSET &&
+      rect.bottom >= vh - HEADER_OFFSET;
 
-      if (compactScrollBlock.current > 0) {
-        e.preventDefault();
-        compactScrollBlock.current--;
-        return;
-      }
+    if (!pinned) {
+      enteredFromBottom.current = false;
+      enteredFromTop.current = false;
+      return;
+    }
 
-      const down = e.deltaY > 0;
-      const up = e.deltaY < 0;
+    const down = e.deltaY > 0;
+    const up = e.deltaY < 0;
 
-      if (activeIndex === 0 && up) {
-        if (edgeLock.current !== "start") {
-          e.preventDefault();
-          edgeLock.current = "start";
-          compactScrollBlock.current = 2;
-        }
-        return;
-      }
+    /* --- Detect entry direction --- */
+    if (!enteredFromBottom.current && rect.bottom < vh) {
+      enteredFromBottom.current = true;
+      setActiveIndex(keys.length - 1); // force tab 4
+    }
 
-      if (activeIndex === keys.length - 1 && down) {
-        if (edgeLock.current !== "end") {
-          e.preventDefault();
-          edgeLock.current = "end";
-          compactScrollBlock.current = 2;
-        }
-        return;
-      }
+    if (!enteredFromTop.current && rect.top > HEADER_OFFSET) {
+      enteredFromTop.current = true;
+      setActiveIndex(0); // force tab 1
+    }
+
+    /* --- Step through tabs --- */
+    if (down && activeIndex < keys.length - 1) {
+      e.preventDefault();
 
       const now = Date.now();
-      if (now - lastWheelTime.current < 650) {
-        e.preventDefault();
-        return;
-      }
-
-      e.preventDefault();
+      if (now - lastWheelTime.current < 550) return;
       lastWheelTime.current = now;
-      edgeLock.current = null;
 
-      if (down) goTo(activeIndex + 1);
-      if (up) goTo(activeIndex - 1);
-    };
+      setActiveIndex(i => Math.min(i + 1, keys.length - 1));
+      return;
+    }
 
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => window.removeEventListener("wheel", onWheel);
-  }, [activeIndex, compact]);
+    if (up && activeIndex > 0) {
+      e.preventDefault();
+
+      const now = Date.now();
+      if (now - lastWheelTime.current < 550) return;
+      lastWheelTime.current = now;
+
+      setActiveIndex(i => Math.max(i - 1, 0));
+      return;
+    }
+
+    /* --- Allow page scroll at edges --- */
+    if (activeIndex === 0 && up) return;
+    if (activeIndex === keys.length - 1 && down) return;
+  };
+
+  window.addEventListener("wheel", onWheel, { passive: false });
+  return () => window.removeEventListener("wheel", onWheel);
+}, [activeIndex, keys.length]);
 
   /* ---------- Scroll detect ---------- */
   useEffect(() => {
@@ -275,83 +282,96 @@ export const ProductTabs: React.FC = () => {
         {/* Content */}
         <div className="w-full max-w-7xl mx-auto">
           <AnimatePresence mode="popLayout">
+           <motion.div
+  key={activeKey}
+  variants={containerMorph}
+  initial="enter"
+  animate="center"
+  exit="exit"
+  className="bg-white rounded-2xl border border-[#e6e9ee] p-10 lg:p-12 min-h-[560px] grid lg:grid-cols-2 gap-12 items-center"
+>
+  {/* LEFT CONTENT */}
+  <div>
+    {/* Title */}
+    <div className="overflow-hidden">
+      <motion.h3
+        variants={rise}
+        custom={true}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        className="text-3xl lg:text-[34px] leading-tight font-semibold text-gray-900"
+      >
+        {data.title}
+      </motion.h3>
+    </div>
+
+    {/* Feature Cards */}
+    <div className="grid sm:grid-cols-2 gap-4 mt-6">
+      {data.features.map((f: any, i: number) => {
+        const Icon = f.icon;
+        return (
+          <div key={i} className="overflow-hidden">
             <motion.div
-              key={activeKey}
-              variants={containerMorph}
+              variants={rise}
+              custom={true}
               initial="enter"
               animate="center"
               exit="exit"
-              className="bg-white rounded-2xl border border-[#e6e9ee] p-6 grid lg:grid-cols-2 gap-8 items-center"
+              transition={{ delay: i * 0.11 }}
+              className="border border-[#e6e9ee] p-4 rounded-xl min-h-[92px] flex flex-col justify-center"
             >
-              {/* LEFT */}
-              <div>
-                <div className="overflow-hidden">
-                  <motion.h3
-                    variants={rise}
-                    custom={true}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    className="text-2xl lg:text-3xl font-semibold text-gray-900"
-                  >
-                    {data.title}
-                  </motion.h3>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-3 mt-4">
-                  {data.features.map((f: any, i: number) => {
-                    const Icon = f.icon;
-                    return (
-                      <div key={i} className="overflow-hidden">
-                        <motion.div
-                          variants={rise}
-                          custom={true}
-                          initial="enter"
-                          animate="center"
-                          exit="exit"
-                          transition={{ delay: i * 0.09 }}
-                          className="border border-[#e6e9ee] p-3 rounded-lg"
-                        >
-                          <Icon size={18} />
-                          <div className="font-semibold text-sm">{f.title}</div>
-                          <div className="text-xs text-gray-600">{f.desc}</div>
-                        </motion.div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <ul className="mt-4 space-y-1 text-xs text-gray-700">
-                  {data.bullets.map((b: string, i: number) => (
-                    <li key={i} className="overflow-hidden">
-                      <motion.div
-                        variants={rise}
-                        custom={true}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ delay: i * 0.08 }}
-                      >
-                        ✔ {b}
-                      </motion.div>
-                    </li>
-                  ))}
-                </ul>
+              <Icon size={18} className="mb-1 text-gray-800" />
+              <div className="font-semibold text-[15px] leading-tight">
+                {f.title}
               </div>
-
-              {/* IMAGE */}
-              <div className="overflow-hidden flex justify-center">
-                <motion.div
-                  variants={rise}
-                  custom={true}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                >
-                  <img src={hero} className="w-full max-w-md rounded-xl shadow" />
-                </motion.div>
+              <div className="text-[13px] text-gray-600 leading-snug mt-0.5">
+                {f.desc}
               </div>
             </motion.div>
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Bullets */}
+    <ul className="mt-6 space-y-2 text-[14px] text-gray-700">
+      {data.bullets.map((b: string, i: number) => (
+        <li key={i} className="overflow-hidden flex">
+          <motion.div
+            variants={rise}
+            custom={true}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ delay: i * 0.1 }}
+            className="flex"
+          >
+            <span className="text-green-600 mr-2">✔</span>
+            <span>{b}</span>
+          </motion.div>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {/* IMAGE */}
+  <div className="overflow-hidden flex justify-center">
+    <motion.div
+      variants={rise}
+      custom={true}
+      initial="enter"
+      animate="center"
+      exit="exit"
+    >
+      <img
+        src={hero}
+        className="w-full max-w-[520px] rounded-xl shadow"
+        alt="Product preview"
+      />
+    </motion.div>
+  </div>
+</motion.div>
           </AnimatePresence>
         </div>
 
