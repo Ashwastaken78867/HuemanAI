@@ -268,7 +268,7 @@ export function AIBrainSection() {
             {[0, 1, 2, 3].map((index) => (
               <div
                 key={index}
-                className="absolute top-full left-1/2 h-24 w-px bg-gradient-to-b from-green-400 to-transparent"
+                className="absolute top-full left-1/2 h-24 w-px bg-linear-to-b from-green-400 to-transparent"
                 style={{
                   transform: `translateX(-50%) translateX(${(index - 1.5) * 220}px)`
                 }}
