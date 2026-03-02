@@ -207,8 +207,7 @@ export const ProductTabs: React.FC = () => {
 
   return (
     <div ref={outerRef} className="relative w-full bg-white" style={{ minHeight: "140vh" }}>
-      <div className="sticky top-[80px] h-[calc(100vh-80px)] flex flex-col">
-
+     <div className="sticky top-[80px] h-[calc(100vh-80px)] flex flex-col overflow-hidden">
         {/* Tabs */}
         <div
           ref={tabsRef}
@@ -232,8 +231,7 @@ export const ProductTabs: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="w-full max-w-7xl mx-auto">
-          <AnimatePresence mode="popLayout">
+<div className="w-full max-w-7xl mx-auto flex-1 flex items-center">          <AnimatePresence mode="popLayout">
             <motion.div
               key={activeKey}
               variants={containerMorph}
