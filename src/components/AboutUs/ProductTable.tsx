@@ -233,88 +233,109 @@ export const ProductTabs: React.FC = () => {
         {/* Content */}
 <div className="w-full max-w-7xl mx-auto flex-1 flex items-center">          <AnimatePresence mode="popLayout">
             <motion.div
-              key={activeKey}
-              variants={containerMorph}
+  key={activeKey}
+  variants={containerMorph}
+  initial="enter"
+  animate="center"
+  exit="exit"
+  className="bg-white rounded-2xl border border-[#e6e9ee] px-8 py-8 lg:px-10 lg:py-10 min-h-[520px] grid lg:grid-cols-2 gap-10 items-center"
+>
+  {/* Left */}
+  <div>
+    {/* Title */}
+    <div className="overflow-hidden">
+      <motion.h3
+        variants={rise}
+        initial="enter"
+        animate="center"
+        exit="exit"
+        className="text-[26px] lg:text-[30px] leading-tight font-semibold text-gray-900"
+      >
+        {data.title}
+      </motion.h3>
+    </div>
+
+    {/* CTA Buttons */}
+    <motion.div
+      variants={rise}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={{ delay: 0.05 }}
+      className="flex flex-wrap gap-2.5 mt-4"
+    >
+      <button className="px-4 py-2 rounded-lg bg-black text-white text-sm font-semibold hover:bg-[#111] transition">
+        Get started for free
+      </button>
+
+      <button className="px-4 py-2 rounded-lg bg-black text-white text-sm font-semibold hover:bg-[#111] transition">
+        Learn more
+      </button>
+    </motion.div>
+
+    {/* Features */}
+    <div className="grid sm:grid-cols-2 gap-3 mt-5">
+      {data.features.map((f: any, i: number) => {
+        const Icon = f.icon;
+        return (
+          <div key={i} className="overflow-hidden">
+            <motion.div
+              variants={rise}
               initial="enter"
               animate="center"
               exit="exit"
-              className="bg-white rounded-2xl border border-[#e6e9ee] p-10 lg:p-12 min-h-[560px] grid lg:grid-cols-2 gap-12 items-center"
+              transition={{ delay: i * 0.06 }}
+              className="border border-[#e6e9ee] p-3 rounded-xl min-h-[80px]"
             >
-              {/* Left */}
-              <div>
-                <div className="overflow-hidden">
-                  <motion.h3
-                    variants={rise}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    className="text-3xl lg:text-[34px] leading-tight font-semibold text-gray-900"
-                  >
-                    {data.title}
-                  </motion.h3>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-4 mt-6">
-                  {data.features.map((f: any, i: number) => {
-                    const Icon = f.icon;
-                    return (
-                      <div key={i} className="overflow-hidden">
-                        <motion.div
-                          variants={rise}
-                          initial="enter"
-                          animate="center"
-                          exit="exit"
-                          transition={{ delay: i * 0.08 }}
-                          className="border border-[#e6e9ee] p-4 rounded-xl min-h-[92px]"
-                        >
-                          <Icon size={18} className="mb-1 text-gray-800" />
-                          <div className="font-semibold text-[15px]">
-                            {f.title}
-                          </div>
-                          <div className="text-[13px] text-gray-600">
-                            {f.desc}
-                          </div>
-                        </motion.div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <ul className="mt-6 space-y-2 text-[14px] text-gray-700">
-                  {data.bullets.map((b: string, i: number) => (
-                    <li key={i} className="overflow-hidden flex">
-                      <motion.div
-                        variants={rise}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ delay: i * 0.06 }}
-                        className="flex"
-                      >
-                        <span className="text-green-600 mr-2">✔</span>
-                        <span>{b}</span>
-                      </motion.div>
-                    </li>
-                  ))}
-                </ul>
+              <Icon size={16} className="mb-1 text-gray-800" />
+              <div className="font-semibold text-[14px]">
+                {f.title}
               </div>
-
-              {/* Image */}
-              <div className="overflow-hidden flex justify-center">
-                <motion.div
-                  variants={rise}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                >
-                  <img
-                    src={hero}
-                    className="w-full max-w-[520px] rounded-xl shadow"
-                    alt="preview"
-                  />
-                </motion.div>
+              <div className="text-[12px] text-gray-600 leading-snug">
+                {f.desc}
               </div>
             </motion.div>
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Bullets */}
+    <ul className="mt-4 space-y-1.5 text-[13px] text-gray-700">
+      {data.bullets.map((b: string, i: number) => (
+        <li key={i} className="overflow-hidden flex">
+          <motion.div
+            variants={rise}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ delay: i * 0.05 }}
+            className="flex"
+          >
+            <span className="text-green-600 mr-2">✔</span>
+            <span>{b}</span>
+          </motion.div>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {/* Image */}
+  <div className="overflow-hidden flex justify-center">
+    <motion.div
+      variants={rise}
+      initial="enter"
+      animate="center"
+      exit="exit"
+    >
+      <img
+        src={hero}
+        className="w-full max-w-[460px] lg:max-w-[480px] rounded-xl shadow"
+        alt="preview"
+      />
+    </motion.div>
+  </div>
+</motion.div>
           </AnimatePresence>
         </div>
 
