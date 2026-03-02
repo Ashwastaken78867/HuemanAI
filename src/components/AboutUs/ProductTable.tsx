@@ -137,72 +137,73 @@ export const ProductTabs: React.FC = () => {
   const data = content[activeKey];
 
   /* ---------- Page-step scroll ---------- */
-const scrollAccum = useRef(0);
-const STEP_THRESHOLD = 90; // trackpad distance
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      if (!tabsRef.current) return;
 
-useEffect(() => {
-  let isAnimatingLocal = false;
+      const rect = tabsRef.current.getBoundingClientRect();
 
-  const STEP_COOLDOWN = 420; // match animation
-  const PIN_TOLERANCE = 2;
+      // ✅ activate only when tab bar touches header
+      const pinned = Math.abs(rect.top - HEADER_OFFSET) <= 2;
 
-  const onWheel = (e: WheelEvent) => {
-    if (!tabsRef.current) return;
+      if (!pinned) {
+        enteredFromBottom.current = false;
+        enteredFromTop.current = false;
+        return;
+      }
 
-    const rect = tabsRef.current.getBoundingClientRect();
-    const pinned = Math.abs(rect.top - HEADER_OFFSET) <= PIN_TOLERANCE;
+      const down = e.deltaY > 0;
+      const up = e.deltaY < 0;
 
-    // not in sticky zone → normal page scroll
-    if (!pinned) {
-      enteredFromBottom.current = false;
-      enteredFromTop.current = false;
-      return;
-    }
+      // detect entry direction
+      if (up && !enteredFromBottom.current) {
+        enteredFromBottom.current = true;
+        setActiveIndex(keys.length - 1);
+        return;
+      }
 
-    const delta = e.deltaY;
-    const direction = delta > 0 ? 1 : -1;
+      if (down && !enteredFromTop.current) {
+        enteredFromTop.current = true;
+        setActiveIndex(0);
+        return;
+      }
 
-    // detect entry direction
-    if (direction === -1 && !enteredFromBottom.current) {
-      enteredFromBottom.current = true;
-      setActiveIndex(keys.length - 1);
-      return;
-    }
+      // block rapid wheel while animating
+      if (isStepping.current) {
+        e.preventDefault();
+        return;
+      }
 
-    if (direction === 1 && !enteredFromTop.current) {
-      enteredFromTop.current = true;
-      setActiveIndex(0);
-      return;
-    }
+      // step down
+      if (down && activeIndex < keys.length - 1) {
+        e.preventDefault();
+        isStepping.current = true;
 
-    // ignore momentum during animation
-    if (isAnimatingLocal) {
-      e.preventDefault();
-      return;
-    }
+        setActiveIndex(i => Math.min(i + 1, keys.length - 1));
 
-    // allow page scroll at edges
-    if (activeIndex === 0 && direction === -1) return;
-    if (activeIndex === keys.length - 1 && direction === 1) return;
+        setTimeout(() => (isStepping.current = false), 420);
+        return;
+      }
 
-    // trigger exactly ONE step
-    e.preventDefault();
-    isAnimatingLocal = true;
+      // step up
+      if (up && activeIndex > 0) {
+        e.preventDefault();
+        isStepping.current = true;
 
-    setActiveIndex((i) => {
-      const next = i + direction;
-      return Math.max(0, Math.min(keys.length - 1, next));
-    });
+        setActiveIndex(i => Math.max(i - 1, 0));
 
-    // unlock after animation
-    setTimeout(() => {
-      isAnimatingLocal = false;
-    }, STEP_COOLDOWN);
-  };
+        setTimeout(() => (isStepping.current = false), 420);
+        return;
+      }
 
-  window.addEventListener("wheel", onWheel, { passive: false });
-  return () => window.removeEventListener("wheel", onWheel);
-}, [activeIndex, keys.length]);
+      // allow page scroll at edges
+      if (activeIndex === 0 && up) return;
+      if (activeIndex === keys.length - 1 && down) return;
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [activeIndex, keys.length]);
 
   return (
     <div ref={outerRef} className="relative w-full bg-white" style={{ minHeight: "140vh" }}>
