@@ -138,85 +138,66 @@ export const ProductTabs: React.FC = () => {
 
   /* ---------- Page-step scroll ---------- */
 const scrollAccum = useRef(0);
-const STEP_THRESHOLD = 120;
+const STEP_THRESHOLD = 90; // trackpad distance
 
 useEffect(() => {
+  let isAnimatingLocal = false;
+
+  const STEP_COOLDOWN = 420; // match animation
+  const PIN_TOLERANCE = 2;
+
   const onWheel = (e: WheelEvent) => {
     if (!tabsRef.current) return;
 
     const rect = tabsRef.current.getBoundingClientRect();
+    const pinned = Math.abs(rect.top - HEADER_OFFSET) <= PIN_TOLERANCE;
 
-    // activate only when tab bar touches header
-    const pinned = Math.abs(rect.top - HEADER_OFFSET) <= 2;
-
+    // not in sticky zone → normal page scroll
     if (!pinned) {
       enteredFromBottom.current = false;
       enteredFromTop.current = false;
-      scrollAccum.current = 0;
       return;
     }
 
     const delta = e.deltaY;
-    const down = delta > 0;
-    const up = delta < 0;
+    const direction = delta > 0 ? 1 : -1;
 
     // detect entry direction
-    if (up && !enteredFromBottom.current) {
+    if (direction === -1 && !enteredFromBottom.current) {
       enteredFromBottom.current = true;
       setActiveIndex(keys.length - 1);
-      scrollAccum.current = 0;
       return;
     }
 
-    if (down && !enteredFromTop.current) {
+    if (direction === 1 && !enteredFromTop.current) {
       enteredFromTop.current = true;
       setActiveIndex(0);
-      scrollAccum.current = 0;
       return;
     }
 
-    // accumulate scroll distance
-    scrollAccum.current += delta;
-
-    // block while animating
-    if (isStepping.current) {
+    // ignore momentum during animation
+    if (isAnimatingLocal) {
       e.preventDefault();
-      return;
-    }
-
-    // STEP DOWN
-    if (scrollAccum.current > STEP_THRESHOLD && activeIndex < keys.length - 1) {
-      e.preventDefault();
-      isStepping.current = true;
-      scrollAccum.current = 0;
-
-      setActiveIndex(i => Math.min(i + 1, keys.length - 1));
-
-      setTimeout(() => {
-        isStepping.current = false;
-      }, 420);
-      return;
-    }
-
-    // STEP UP
-    if (scrollAccum.current < -STEP_THRESHOLD && activeIndex > 0) {
-      e.preventDefault();
-      isStepping.current = true;
-      scrollAccum.current = 0;
-
-      setActiveIndex(i => Math.max(i - 1, 0));
-
-      setTimeout(() => {
-        isStepping.current = false;
-      }, 420);
       return;
     }
 
     // allow page scroll at edges
-    if (activeIndex === 0 && up) return;
-    if (activeIndex === keys.length - 1 && down) return;
+    if (activeIndex === 0 && direction === -1) return;
+    if (activeIndex === keys.length - 1 && direction === 1) return;
 
+    // trigger exactly ONE step
     e.preventDefault();
+    isAnimatingLocal = true;
+
+    setActiveIndex((i) => {
+      const next = i + direction;
+      return Math.max(0, Math.min(keys.length - 1, next));
+    });
+
+    // unlock after animation
+    setTimeout(() => {
+      isAnimatingLocal = false;
+    }, STEP_COOLDOWN);
   };
 
   window.addEventListener("wheel", onWheel, { passive: false });
