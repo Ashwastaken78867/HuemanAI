@@ -1,22 +1,22 @@
 
 import './App.css'
 import { ProductTabs } from './components/AboutUs/ProductTable'
-import {BentoGrid} from './components/AdvantageSection/AdvantageSection'
+import {BentoGrid} from './components/BentoGrid/BentoGrid'
 import { Brands } from './components/Brands/Brands'
-import { PerformanceGap } from './components/DataBackedResults/DataBackedResults'
-import {SecurityCompliance} from './components/EnterpriseReliability/EnterpriseReliability'
+import { PerformanceGap } from './components/PerformanceGap/PerformanceGap'
+import {SecurityCompliance} from './components/SecurityCompliance/SecurityCompliance'
 import FAQSection from './components/FAQSection.tsx/FAQSection'
 import Footer from './components/Footer/Footer'
 import { Header } from './components/Header/Header'
 import { Hero } from './components/heroSection/HeroSection'
-import { IntegrationsNew } from './components/IntegrationsSection/IntegrationsSection'
+import { IntegrationsNew } from './components/IntegrationsNew/IntegrationsNew'
 import { VoiceDemo } from './components/VoiceDemo/VoiceDemo'
-import { StrategicValue } from './components/WhyHuemanSection.tsx/WhyHuemanSection'
-import {VisionSection} from "./components/AIBrainSection/AIBrainSection";
+import { StrategicValue } from './components/StrategicValue/StrategicValue'
+import {VisionSection} from "./components/VisionSection/VisionSection";
 function App() {
 
   return (
-    <div className='bg-white'>
+    <div className="min-h-screen bg-white">
    <Header />
    <Hero />
    <Brands />
@@ -35,9 +35,7 @@ function App() {
    <SecurityCompliance />
    <FAQSection />
    <Footer/>
-   {/* <ModuleButtons activeModule={0} onModuleChange={function (): void {
-        throw new Error('Function not implemented.')
-      } } /> */}
+ 
 
    
     </div>
