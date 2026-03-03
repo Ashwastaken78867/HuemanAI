@@ -214,10 +214,10 @@ export const ProductTabs: React.FC = () => {
   <div className="sticky top-[80px] lg:h-[calc(100vh-80px)] flex flex-col lg:overflow-hidden">
 
     {/* Tabs */}
-    <div
-      ref={tabsRef}
-      className="w-full max-w-7xl mx-auto mb-4 bg-white rounded-2xl border border-[#e6e9ee] p-2"
-    >
+   <div
+  ref={tabsRef}
+  className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 mb-4 bg-white rounded-2xl border border-[#e6e9ee] p-2"
+>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         {tabs.map((t, i) => (
           <button
@@ -236,7 +236,7 @@ export const ProductTabs: React.FC = () => {
     </div>
 
     {/* Content */}
-    <div className="w-full max-w-7xl mx-auto flex-1 flex items-start lg:items-center">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 flex-1 flex items-start lg:items-center">
       <AnimatePresence mode="popLayout">
         <motion.div
           key={activeKey}
